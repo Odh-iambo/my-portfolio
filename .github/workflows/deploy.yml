@@ -1,0 +1,48 @@
+# .github/workflows/deploy.yml
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: ["main"] # Run on every push to the main branch
+  workflow_dispatch: # Allows manual trigger
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Setup Node.js environment
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20' 
+          cache: 'npm'
+      
+      # Install dependencies
+      - name: Install Dependencies
+        run: npm install
+
+      # Run the build command (Creates the 'dist' folder)
+      - name: Build Project
+        run: npm run build
+
+      # Setup Pages and upload the build artifact
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+      
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          # This is the folder Vite creates after a successful build
+          path: './dist' 
+          
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
